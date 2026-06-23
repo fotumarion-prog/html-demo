@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Manual — KILOJI Transport Management (v2.0)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --teal:     #00897B;
+  --teal2:    #00BFA5;
+  --dark:     #0B1E2D;
+  --dark2:    #112233;
+  --accent:   #FF6D00;
+  --white:    #FFFFFF;
+  --gray:     #5F7A8A;
+  --lgray:    #F2F6F8;
+  --border:   #D8E8EE;
+  --warning:  #FFF3E0;
+  --warnbdr:  #FFB300;
+  --success:  #E8F5E9;
+  --succbdr:  #2E7D32;
+  --info:     #E3F2FD;
+  --infobdr:  #1565C0;
+  --sidebar-w: 280px;
+  --radius:   12px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--lgray);
+  color: var(--dark);
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ───────────────────────────────────────────────── */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--dark);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 100;
+  transition: transform .3s ease;
+}
+
+.sidebar-logo {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.logo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--teal), var(--teal2));
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 20px;
+  font-weight: 800;
+  color: white;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+.logo-badge span { font-size: 22px; }
+
+.sidebar-logo p {
+  color: rgba(255,255,255,.5);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding-left: 4px;
+}
+
+.sidebar-version {
+  background: var(--accent);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  display: inline-block;
+  margin: 6px 0 0 4px;
+  letter-spacing: .5px;
+}
+
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.3);
+  padding: 18px 24px 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 24px;
+  color: rgba(255,255,255,.65);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all .2s;
+  text-decoration: none;
+}
+
+.nav-item:hover { color: white; background: rgba(255,255,255,.05); }
+.nav-item.active { color: var(--teal2); border-left-color: var(--teal2); background: rgba(0,191,165,.08); }
+
+.nav-item .icon {
+  width: 26px; height: 26px;
+  background: rgba(255,255,255,.08);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.nav-item.active .icon { background: rgba(0,191,165,.2); }
+
+.nav-sub {
+  padding: 5px 24px 5px 64px;
+  font-size: 12px;
+  color: rgba(255,255,255,.4);
+  cursor: pointer;
+  transition: color .2s;
+  text-decoration: none;
+  display: block;
+}
+.nav-sub:hover { color: rgba(255,255,255,.75); }
+
+/* ── MAIN CONTENT ──────────────────────────────────────────── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOP BAR ───────────────────────────────────────────────── */
+.topbar {
+  position: sticky;
+  top: 0;
+  background: rgba(242,246,248,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+}
+
+.topbar-breadcrumb {
+  font-size: 13px;
+  color: var(--gray);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.topbar-breadcrumb strong { color: var(--dark); }
+
+.topbar-badges { display: flex; gap: 8px; }
+.topbadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid;
+}
+.topbadge.green { color: #2E7D32; border-color: #A5D6A7; background: #F1F8E9; }
+.topbadge.blue  { color: #1565C0; border-color: #90CAF9; background: #E3F2FD; }
+
+/* ── CONTENT AREA ──────────────────────────────────────────── */
+.content { padding: 40px 56px 80px; max-width: 960px; }
+
+/* ── COVER ─────────────────────────────────────────────────── */
+.cover {
+  background: linear-gradient(135deg, var(--dark) 0%, #0E2A3D 60%, #1A4A55 100%);
+  border-radius: 20px;
+  padding: 56px;
+  margin-bottom: 48px;
+  position: relative;
+  overflow: hidden;
+}
+.cover::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 340px; height: 340px;
+  background: radial-gradient(circle, rgba(0,191,165,.18) 0%, transparent 70%);
+  border-radius: 50%;
+}
+.cover::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: 200px;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(255,109,0,.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.cover-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--teal2);
+  margin-bottom: 16px;
+}
+
+.cover h1 {
+  font-size: 42px;
+  font-weight: 800;
+  color: white;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+.cover h1 span { color: var(--teal2); }
+
+.cover-sub {
+  font-size: 17px;
+  color: rgba(255,255,255,.55);
+  margin-bottom: 32px;
+  font-weight: 400;
+}
+
+.cover-meta {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+
+.cover-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cover-meta-item label { font-size: 10px; color: rgba(255,255,255,.35); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+.cover-meta-item span { font-size: 13px; color: rgba(255,255,255,.8); font-weight: 500; }
+
+.cover-chips {
+  display: flex;
+  gap: 10px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+.chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.chip.teal { background: rgba(0,191,165,.15); color: var(--teal2); border: 1px solid rgba(0,191,165,.3); }
+.chip.orange { background: rgba(255,109,0,.15); color: #FF8A00; border: 1px solid rgba(255,109,0,.3); }
+.chip.white { background: rgba(255,255,255,.08); color: rgba(255,255,255,.7); border: 1px solid rgba(255,255,255,.15); }
+
+/* ── SECTION HEADERS ───────────────────────────────────────── */
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+  padding-top: 16px;
+}
+
+.section-icon {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.section-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--dark);
+}
+.section-header p {
+  font-size: 13px;
+  color: var(--gray);
+  margin-top: 2px;
+}
+
+/* ── CARDS ─────────────────────────────────────────────────── */
+.card {
+  background: white;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 24px 28px;
+  margin-bottom: 20px;
+  transition: box-shadow .2s;
+}
+.card:hover { box-shadow: 0 4px 24px rgba(0,0,0,.06); }
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── STEP CARDS ────────────────────────────────────────────── */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  transition: all .2s;
+}
+.step:hover { border-color: var(--teal2); box-shadow: 0 2px 12px rgba(0,137,123,.1); }
+
+.step-num {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--teal), var(--teal2));
+  border-radius: 50%;
+  color: white;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-body { flex: 1; }
+.step-body strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+.step-body p, .step-body span {
+  font-size: 13px;
+  color: var(--gray);
+  line-height: 1.6;
+}
+
+.step-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: .5px;
+  margin-left: 8px;
+  text-transform: uppercase;
+}
+.step-tag.req { background: #FFF3E0; color: #E65100; }
+
+/* ── ALERT BOXES ───────────────────────────────────────────── */
+.alert {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 18px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+.alert.warning { background: var(--warning); border: 1px solid var(--warnbdr); color: #5D4037; }
+.alert.success { background: var(--success); border: 1px solid #A5D6A7; color: #1B5E20; }
+.alert.info    { background: var(--info);    border: 1px solid #90CAF9; color: #0D47A1; }
+.alert.danger  { background: #FFEBEE; border: 1px solid #EF9A9A; color: #B71C1C; }
+
+/* ── FEATURE GRID ──────────────────────────────────────────── */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.feature-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  transition: all .2s;
+  cursor: default;
+}
+.feature-card:hover {
+  border-color: var(--teal2);
+  box-shadow: 0 3px 16px rgba(0,137,123,.1);
+  transform: translateY(-1px);
+}
+
+.fc-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.fc-body h4 { font-size: 13px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+.fc-body p  { font-size: 12px; color: var(--gray); line-height: 1.5; }
+
+/* ── MODULE GRID ───────────────────────────────────────────── */
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.module-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .22s;
+}
+.module-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.09);
+  border-color: var(--teal2);
+}
+
+.module-card .mc-icon { font-size: 28px; margin-bottom: 10px; }
+.module-card h4 { font-size: 13px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+.module-card p  { font-size: 11px; color: var(--gray); }
+.module-card .mc-count {
+  margin-top: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--teal);
+  background: rgba(0,137,123,.08);
+  border-radius: 20px;
+  padding: 2px 10px;
+  display: inline-block;
+}
+
+/* ── CODE BOX ──────────────────────────────────────────────── */
+.url-box {
+  background: var(--dark2);
+  border-radius: 8px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.url-box span { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--teal2); }
+.url-box label { font-size: 11px; color: rgba(255,255,255,.4); margin-left: auto; }
+
+/* ── TABLE ─────────────────────────────────────────────────── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.data-table thead th {
+  background: var(--dark);
+  color: white;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: .4px;
+}
+.data-table tbody td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--dark);
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover td { background: #F8FBFC; }
+
+/* ── PROCESS FLOW ──────────────────────────────────────────── */
+.flow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.flow-node {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  text-align: center;
+  min-width: 110px;
+  transition: all .2s;
+}
+.flow-node:hover { border-color: var(--teal); background: rgba(0,137,123,.04); }
+.flow-node .fn-icon { font-size: 22px; margin-bottom: 6px; }
+.flow-node h5 { font-size: 11px; font-weight: 700; color: var(--dark); }
+.flow-node p  { font-size: 10px; color: var(--gray); margin-top: 2px; }
+.flow-arrow { font-size: 20px; color: var(--teal2); margin: 0 6px; flex-shrink: 0; }
+
+/* ── DIVIDER ───────────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 40px 0;
+}
+
+/* ── H3 INSIDE SECTIONS ────────────────────────────────────── */
+h3.sub {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dark);
+  margin: 28px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+h3.sub::before {
+  content: '';
+  width: 4px; height: 18px;
+  background: linear-gradient(to bottom, var(--teal), var(--teal2));
+  border-radius: 4px;
+}
+
+/* ── GLOSSARY ──────────────────────────────────────────────── */
+.glossary-item {
+  display: flex;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.glossary-term {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--teal);
+  min-width: 80px;
+  padding-top: 1px;
+}
+.glossary-def { font-size: 13px; color: var(--gray); line-height: 1.6; }
+
+/* ── SCROLL ANIMATIONS ─────────────────────────────────────── */
+.fade-in { opacity: 0; transform: translateY(16px); transition: opacity .5s ease, transform .5s ease; }
+.fade-in.visible { opacity: 1; transform: translateY(0); }
+
+/* ── SECTION VISIBILITY ────────────────────────────────────── */
+.section { display: none; }
+.section.active { display: block; }
+
+/* ── SCROLLBAR ─────────────────────────────────────────────── */
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+
+/* ── PROGRESS BAR ──────────────────────────────────────────── */
+.progress-bar {
+  height: 3px;
+  background: linear-gradient(to right, var(--teal), var(--teal2));
+  position: fixed;
+  top: 0;
+  left: var(--sidebar-w);
+  right: 0;
+  z-index: 200;
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform .1s;
+}
+
+/* ── BACK TO TOP ───────────────────────────────────────────── */
+.back-top {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 42px; height: 42px;
+  background: var(--teal);
+  color: white;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,137,123,.35);
+  opacity: 0;
+  transition: opacity .3s, transform .2s;
+  transform: translateY(10px);
+  border: none;
+}
+.back-top.visible { opacity: 1; transform: translateY(0); }
+.back-top:hover { background: var(--teal2); }
+
+.module-card .mc-count.new { color:#fff; background:var(--accent); }
+.module-card .mc-count.imp { color:#fff; background:var(--teal); }
+.module-card .mc-count.exi { color:var(--gray); background:var(--lgray); border:1px solid var(--border); }
+@media (max-width: 860px){ .sidebar{transform:translateX(-100%);} .main{margin-left:0;} .progress-bar{left:0;} .content{padding:24px 18px 70px;} .feature-grid,.module-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge"><span>🚛</span> KILOJI</div>
+    <p>Transport management</p>
+    <div class="sidebar-version">v2.0 — June 2026</div>
+  </div>
+  <div class="sidebar-section-label">Navigation</div><a class="nav-item active" onclick="showSection('accueil')" href="#"><div class="icon">🏠</div> Home</a><a class="nav-item" onclick="showSection('nouveautes')" href="#"><div class="icon">✨</div> What’s new in 2.0</a><a class="nav-item" onclick="showSection('principes')" href="#"><div class="icon">📖</div> Fundamentals</a><a class="nav-item" onclick="showSection('connexion')" href="#"><div class="icon">🔐</div> Login & Deployment</a><div class="sidebar-section-label">Features</div><a class="nav-item" onclick="showSection('utilisateurs')" href="#"><div class="icon">👥</div> User management</a><a class="nav-item" onclick="showSection('management')" href="#"><div class="icon">📁</div> Management & Resources</a><a class="nav-item" onclick="showSection('hseq')" href="#"><div class="icon">🛡️</div> HSEQ management</a><a class="nav-item" onclick="showSection('parc')" href="#"><div class="icon">🚛</div> Fleet management</a><a class="nav-item" onclick="showSection('chauffeurs')" href="#"><div class="icon">🧑‍✈️</div> Driver management</a><a class="nav-item" onclick="showSection('tournees')" href="#"><div class="icon">📍</div> Route management</a><a class="nav-item" onclick="showSection('exploitation')" href="#"><div class="icon">💼</div> Operations</a><a class="nav-item" onclick="showSection('parametres')" href="#"><div class="icon">⚙️</div> Settings & Reference</a><div class="sidebar-section-label">Documents</div><a class="nav-item" onclick="showSection('ged')" href="#"><div class="icon">🗄️</div> EDM — Document management</a><div class="sidebar-section-label">Reference</div><a class="nav-item" onclick="showSection('glossaire')" href="#"><div class="icon">📚</div> Glossary</a>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-breadcrumb">KILOJI &rsaquo; <strong id="breadcrumbLabel">Home</strong></div>
+    <div class="topbar-badges">
+      <span class="topbadge blue">Intermediate user</span>
+      <span class="topbadge green">English</span>
+    </div>
+  </div>
+  <div class="content">
+    <div id="sec-accueil" class="section active">
+<div class="cover fade-in">
+  <div class="cover-tag">📄 Official User Manual · Consolidated edition</div>
+  <h1>KILOJI<br><span>Transport Management</span></h1>
+  <p class="cover-sub">Integrated transport management software — SAWORI Holding &amp; Partners SARL</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item"><label>Version</label><span>2.0</span></div>
+    <div class="cover-meta-item"><label>Date</label><span>June 08, 2026</span></div>
+    <div class="cover-meta-item"><label>Publisher</label><span>Institut Ucac-Icam</span></div>
+    <div class="cover-meta-item"><label>Language</label><span>English</span></div>
+    <div class="cover-meta-item"><label>URL</label><span>kiloji.com</span></div>
+  </div>
+  <div class="cover-chips">
+    <span class="chip teal">🚛 Road transport</span>
+    <span class="chip teal">📦 Logistics</span>
+    <span class="chip orange">⚙️ Integrated ERP</span>
+    <span class="chip orange">🗄️ Built-in EDM</span>
+    <span class="chip white">🔐 2FA authentication</span>
+  </div>
+</div>
+<div class="section-header fade-in"><div class="section-icon" style="background:#E0F2F1;">🎯</div><div><h2>Welcome to KILOJI</h2><p>Your transport management software, 2.0 edition</p></div></div>
+<div class="card fade-in"><p style="font-size:14px;color:var(--gray);line-height:1.8;"><strong style="color:var(--dark);">KILOJI</strong> is the integrated transport management solution by SAWORI Holding &amp; Partners SARL. It centralizes contracts, the fleet, drivers, routes, maintenance (CMMS), HSEQ compliance, operations and invoicing, with an <strong>Electronic Document Management (EDM/DMS)</strong> system that links all document-producing modules. This 2.0 edition consolidates the original guide and integrates the improved modules as well as the new modules.</p></div>
+<div class="feature-grid fade-in">
+  <div class="feature-card"><div class="fc-icon" style="background:#E0F2F1;">📈</div><div class="fc-body"><h4>Planning &amp; tracking</h4><p>Routes, loads and shipments tracked in real time.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#FFF3E0;">💰</div><div class="fc-body"><h4>Cost control</h4><p>Fuel, tires, maintenance and automated invoicing.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#E3F2FD;">🛡️</div><div class="fc-body"><h4>HSEQ compliance</h4><p>Audits, risks, PPE, controls and inspections built in.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#FCE4EC;">🗄️</div><div class="fc-body"><h4>Document management</h4><p>Contracts, procedures, letters and invoices centralized and traceable.</p></div></div>
+</div>
+<table class="data-table fade-in"><thead><tr><th>Type of organization</th><th>Main use</th></tr></thead><tbody>
+<tr><td>🏢 Road transport companies</td><td>Full fleet and route management</td></tr>
+<tr><td>📦 Logistics &amp; distribution companies</td><td>Shipment planning and tracking</td></tr>
+<tr><td>🚗 Independent carriers</td><td>Invoicing and contract management</td></tr>
+<tr><td>🔧 Companies with a truck fleet</td><td>CMMS, maintenance and vehicle tracking</td></tr>
+</tbody></table>
+</div><div id="sec-nouveautes" class="section">
+<div class="section-header fade-in"><div class="section-icon" style="background:#FFF3E0;">✨</div><div><h2>What’s new in version 2.0</h2><p>Modules added and improved since edition 1.0</p></div></div>
+<div class="card fade-in"><p style="font-size:14px;color:var(--gray);line-height:1.8;">This edition consolidates the previous manual and documents every evolution delivered: <strong>44 new modules</strong> and <strong>7 improved modules</strong>, plus a new <strong>Settings</strong> menu and an <strong>Electronic Document Management (EDM)</strong> module.</p></div>
+<h3 class="sub">🆕 New modules</h3>
+<div class="module-grid fade-in"><div class="module-card"><div class="mc-icon">👥</div><h4>User settings (access and status management)</h4><p>The “User settings” sub-module centralizes access and status management</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🔹</div><h4>Policies</h4><p>The Policies module lets you formalize and distribute company policies</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">✉️</div><h4>Letter templates</h4><p>The Letter templates module lets you create and manage reusable letter templates</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">📊</div><h4>HR dashboard</h4><p>The HR dashboard provides an overview of HR indicators:</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🏆</div><h4>HR objectives</h4><p>The HR objectives sub-module manages objectives specific to human resources (creation, monitoring, progress,…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🗂️</div><h4>Services</h4><p>The Services module completes the organizational structure by managing the services attached to…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🧑‍💼</div><h4>Consultants</h4><p>The Consultants module manages the company’s external contributors and consultants, on the same…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🪪</div><h4>QR badges</h4><p>The QR badges module manages QR-code identification badges for staff</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🪪</div><h4>Terminal badge</h4><p>The Terminal badge module manages clocking and badge reading at a terminal, complementing…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🚚</div><h4>Cabin coaching</h4><p>The Cabin coaching module lets you schedule in-cabin coaching (monitoring a driver in…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">⚖️</div><h4>Sanctions</h4><p>The Sanctions module manages sanctions related to staff and infringements (monitoring, statistics, filters)</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">⚖️</div><h4>Sanction documents</h4><p>The Sanction documents module manages the supporting documents associated with sanctions, with the…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">📊</div><h4>HSEQ dashboard</h4><p>The HSEQ dashboard centralizes the safety and compliance indicators of operations</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🏆</div><h4>HSEQ objectives</h4><p>The HSEQ objectives module manages safety, environment and quality objectives (creation, monitoring, progress,…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🦺</div><h4>Toolbox Meetings</h4><p>The Toolbox Meetings module manages safety talks (field safety briefings):</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">📜</div><h4>Regulatory watch</h4><p>The Regulatory watch module lets you track applicable regulatory texts and requirements and…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🔍</div><h4>Audits</h4><p>The Audits module manages the planning and monitoring of HSEQ audits (internal and…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🛑</div><h4>Risk management</h4><p>The Risk management module lets you identify, assess and monitor the risks related…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🧩</div><h4>Critical task analysis</h4><p>The Critical task analysis module lets you break down and analyze high-risk tasks…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🚨</div><h4>Security and emergency</h4><p>The Security and emergency module manages security arrangements and emergency situations (plans, instructions,…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">✅</div><h4>Controls and inspections</h4><p>The Controls and inspections module manages the controls and inspections program (planning, execution,…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🔄</div><h4>Assignment history</h4><p>The Assignment history module traces all vehicle (and driver) assignments over time, for…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🛞</div><h4>Tire management</h4><p>The Tires module manages the tracking of the fleet’s tires (stock, mounting, wear,…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">⛽</div><h4>Fuel management</h4><p>The Fuel module tracks fuel consumption and expenditure, a key indicator for controlling…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🔧</div><h4>Dashboards (CMMS)</h4><p>The CMMS dashboards present the maintenance indicators (immobilizations, interventions in progress, etc.)</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🏆</div><h4>Maintenance objectives</h4><p>The module manages maintenance objectives (creation, monitoring, progress, statistics)</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🔧</div><h4>Maintenance schedule</h4><p>The Maintenance schedule module defines the standard maintenance schedules and plans applied to…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🛠️</div><h4>Intervention request</h4><p>The Intervention request module lets you issue and track maintenance intervention requests</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🩺</div><h4>Diagnostics</h4><p>The Diagnostics module records the diagnostics performed on vehicles</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">📥</div><h4>Check-in</h4><p>The Check-in module manages the check-in of vehicles into the workshop</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🧾</div><h4>Quotes</h4><p>The Quotes module manages maintenance and repair quotes</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🛒</div><h4>Purchase orders</h4><p>The Purchase orders module manages purchase orders related to maintenance and parts</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">⚙️</div><h4>Parts management</h4><p>The Parts management module manages the stock and tracking of spare parts</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🛠️</div><h4>Interventions</h4><p>The Interventions module manages the execution and monitoring of maintenance interventions</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">💰</div><h4>Distances and pricing</h4><p>The Distances and pricing module manages the reference data for distances and the…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🛢️</div><h4>Volumes</h4><p>The Volumes module tracks the volumes transported, a key activity indicator</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">💵</div><h4>Revenue</h4><p>The Revenue module tracks and analyzes the revenue generated by operations</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">📦</div><h4>Packaging types</h4><p>Reference data for the packaging types of the transported goods</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">📄</div><h4>Contract types</h4><p>Reference data for the contract types used in the software (driver contracts, transport,…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🚛</div><h4>Fleet types</h4><p>Reference data for the company’s fleet/vehicle types</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🧴</div><h4>Products</h4><p>Reference data for the products managed by the company</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">📦</div><h4>Loading products</h4><p>Reference data for the products likely to be loaded and transported</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🛣️</div><h4>Transport channels</h4><p>Reference data for the transport channels (modes/circuits) used</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🏭</div><h4>Manufacturers</h4><p>Reference data for manufacturers (vehicles, parts, equipment)</p><span class="mc-count new">● New</span></div></div>
+<h3 class="sub">⬆️ Improved modules</h3>
+<div class="module-grid fade-in"><div class="module-card"><div class="mc-icon">📊</div><h4>Activity reviews</h4><p>The activity reviews module presents statistics (planned, held, cancelled reviews, completion rate), lets…</p><span class="mc-count imp">Improved</span></div><div class="module-card"><div class="mc-icon">💼</div><h4>Positions</h4><p>The Positions module lists positions by department with the number of associated employees</p><span class="mc-count imp">Improved</span></div><div class="module-card"><div class="mc-icon">🦺</div><h4>Personal protective equipment (PPE)</h4><p>The PPE module manages personal protective equipment (total PPE, low stock, suppliers)</p><span class="mc-count imp">Improved</span></div><div class="module-card"><div class="mc-icon">🔧</div><h4>CMMS</h4><p>The CMMS groups all maintenance functions</p><span class="mc-count imp">Improved</span></div><div class="module-card"><div class="mc-icon">🅿️</div><h4>Immobilizations</h4><p>The Immobilizations module tracks immobilized vehicles (in progress, completed) with their statistics</p><span class="mc-count imp">Improved</span></div><div class="module-card"><div class="mc-icon">📍</div><h4>Route management</h4><p>The Routes module manages and visualizes the fleet’s routes (total, in progress, completion…</p><span class="mc-count imp">Improved</span></div><div class="module-card"><div class="mc-icon">🧾</div><h4>Invoicing</h4><p>The Invoicing module manages invoices generated automatically or manually (total, total amount, amount…</p><span class="mc-count imp">Improved</span></div></div>
+<div class="alert info fade-in"><span class="alert-icon">ℹ️</span><div>Almost every module shares the same actions: <strong>Add, Import, Filter, Export (PDF/Excel), Archives</strong> and a <strong>dashboard</strong>. They are described once in the “Conventions” chapter and only repeated when a module has a specific feature.</div></div>
+</div><div id="sec-principes" class="section">
+<div class="section-header fade-in"><div class="section-icon" style="background:#E3F2FD;">📖</div><div><h2>Fundamentals</h2><p>Key concepts and target users of KILOJI</p></div></div>
+<div class="card fade-in"><p style="font-size:14px;color:var(--gray);line-height:1.8;">KILOJI is built on structuring concepts that organize the entire transport workflow. The tool adapts to a small business as well as to an established logistics company.</p></div>
+<h3 class="sub">Key concepts</h3>
+<div class="feature-grid fade-in">
+  <div class="feature-card"><div class="fc-icon" style="background:#E0F2F1;">📄</div><div class="fc-body"><h4>Transport contracts</h4><p>Define the terms of each commitment and shipment.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#FFF3E0;">🚛</div><div class="fc-body"><h4>Vehicles &amp; fleet</h4><p>Maintenance, assignments and document tracking.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#E3F2FD;">🧑‍✈️</div><div class="fc-body"><h4>Drivers &amp; staff</h4><p>Assigned to shipments, monitored for performance and training.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#FCE4EC;">📍</div><div class="fc-body"><h4>Routes &amp; itineraries</h4><p>Planned to optimize trips and costs.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#E8F5E9;">🧾</div><div class="fc-body"><h4>Invoices</h4><p>Generated automatically from operations.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#EDE7F6;">⚙️</div><div class="fc-body"><h4>Reference data</h4><p>Products, contract types, fleets, channels and manufacturers.</p></div></div>
+</div>
+<h3 class="sub">Benefits</h3>
+<div class="alert success fade-in"><span class="alert-icon">✅</span><div>Improve shipment planning and tracking · Reduce operating costs · Increase customer satisfaction · Ensure regulatory compliance and safety.</div></div>
+</div><div id="sec-connexion" class="section">
+<div class="section-header fade-in"><div class="section-icon" style="background:#E8F5E9;">🔐</div><div><h2>Login &amp; Deployment</h2><p>Access your KILOJI workspace securely</p></div></div>
+<div class="alert info fade-in"><span class="alert-icon">🌐</span><div>Login URL: <strong>kiloji.com</strong> — accessible from any web browser (Chrome recommended).</div></div>
+<div class="url-box fade-in"><span>🔗 kiloji.com</span><label>Official KILOJI URL</label></div>
+<h3 class="sub">Tools required before first login</h3>
+<div class="feature-grid fade-in">
+  <div class="feature-card"><div class="fc-icon" style="background:#FCE4EC;">📧</div><div class="fc-body"><h4>Active Gmail account</h4><p>Required to verify the email address.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#E8F5E9;">🔑</div><div class="fc-body"><h4>Google Authenticator</h4><p>Two-factor authentication (2FA) on a second phone.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#E3F2FD;">🌐</div><div class="fc-body"><h4>Web browser</h4><p>Chrome or a modern browser, connection ≥ 1 Mbit/s.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#FFF3E0;">🏢</div><div class="fc-body"><h4>SAWORI credentials</h4><p>Email and temporary password provided by your administrator.</p></div></div>
+</div>
+<h3 class="sub">🆕 First login (new account)</h3>
+<div class="steps fade-in">
+  <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Open the login window</strong><p>Go to kiloji.com, enter your <strong>email or phone</strong> and your <strong>temporary password</strong>, then click <strong>Validate</strong>.</p></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Verify your email address <span class="step-tag req">Required</span></strong><p>In <strong>Gmail</strong>, open the KILOJI email and click <strong>“Verify email address”</strong>. The temporary password is shown there.</p></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Scan the 2FA QR code</strong><p>Refresh the KILOJI page: a <strong>QR code</strong> appears. On a second phone, open <strong>Google Authenticator</strong> → <strong>+</strong> → <strong>“Scan a code”</strong>.</p></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Enter the 6-digit code</strong><p>Copy the code shown in Authenticator into the <strong>“Verification code”</strong> field, then click <strong>“Activate verification”</strong>. Your workspace opens.</p></div></div>
+</div>
+<div class="alert warning fade-in"><span class="alert-icon">⚠️</span><div>Enter your credentials correctly to avoid <strong>account lockout</strong>. The 2FA code is <strong>strictly confidential</strong> — never share it.</div></div>
+<h3 class="sub">🔄 Regular login (existing account)</h3>
+<div class="flow fade-in">
+  <div class="flow-node">Open kiloji.com</div><span class="flow-arrow">→</span>
+  <div class="flow-node">Copy the 2FA code (Authenticator)</div><span class="flow-arrow">→</span>
+  <div class="flow-node">Paste &amp; Validate</div><span class="flow-arrow">→</span>
+  <div class="flow-node">User workspace</div>
+</div>
+<div class="alert info fade-in"><span class="alert-icon">⏱️</span><div>Features depend on your <strong>rights and permissions</strong>. A new 2FA authentication is required 1 hour after logout.</div></div>
+</div><div id="sec-utilisateurs" class="section"><div class="section-header fade-in"><div class="section-icon" style="background:#E3F2FD;">👥</div><div><h2>User management</h2><p>Accounts, access, profiles and global search</p></div></div><div class="card fade-in"><p style="font-size:14px;color:var(--gray);line-height:1.8;">This module manages all accounts and access to the system: user list, operations history, statistics, profile and access settings. A <strong>global search</strong> engine finds any record across modules.</p></div><div class="alert success fade-in"><span class="alert-icon">✨</span><div><strong>New modules:</strong> Global search, User settings (access and status management).</div></div><div class="module-grid fade-in"><div class="module-card"><div class="mc-icon">🔎</div><h4>Global search</h4><p>Global search is a cross-cutting search engine available from the top bar</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">👤</div><h4>My profile</h4><p>The “My profile” module lets the user view and edit their personal information…</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">👥</div><h4>User list</h4><p>From the list, you add a new user via the dedicated form</p><span class="mc-count exi">Module</span></div><div class="module-card"><div class="mc-icon">👥</div><h4>User settings (access and status management)</h4><p>The “User settings” sub-module centralizes access and status management</p><span class="mc-count new">● New</span></div></div></div><div id="sec-management" class="section"><div class="section-header fade-in"><div class="section-icon" style="background:#FFF3E0;">📁</div><div><h2>Management &amp; Resources</h2><p>Contracts, policies, objectives, reviews and HR</p></div></div><div class="card fade-in"><p style="font-size:14px;color:var(--gray);line-height:1.8;">The Management menu groups document and steering management (contracts, templates, policies, letters, action plans, objectives, reviews) and the full <strong>Human Resources Management</strong> (employees, services, positions, consultants, leave, permissions, badges, sanctions, evaluations, training, recruitment).</p></div><div class="alert success fade-in"><span class="alert-icon">✨</span><div><strong>New modules:</strong> Policies, Letter templates, HR dashboard, HR objectives, Services, Consultants, QR badges, Terminal badge, Cabin coaching, Sanctions, Sanction documents.</div></div><div class="alert info fade-in"><span class="alert-icon">⬆️</span><div><strong>Improved modules:</strong> Activity reviews, Positions.</div></div><div class="module-grid fade-in"><div class="module-card"><div class="mc-icon">🧑‍✈️</div><h4>Driver contracts</h4><p>The module lets you record a driver contract in two ways:</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">📄</div><h4>Contract templates</h4><p>This module lets you create reusable templates</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">🔹</div><h4>Policies</h4><p>The Policies module lets you formalize and distribute company policies</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">✉️</div><h4>Letter templates</h4><p>The Letter templates module lets you create and manage reusable letter templates</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🎯</div><h4>Action plans</h4><p>Action plans are documents that set the guidelines for the objectives to be…</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">🏆</div><h4>Top-management objectives</h4><p>This module presents the objectives dashboard (total, achieved, in progress, not started) and…</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">📊</div><h4>Activity reviews</h4><p>The activity reviews module presents statistics (planned, held, cancelled reviews, completion rate), lets…</p><span class="mc-count imp">Improved</span></div><div class="module-card"><div class="mc-icon">🔹</div><h4>Human Resources Management (HR)</h4><p>HR covers the management of employees, departments, services, positions, consultants, leave, permissions, evaluations,…</p><span class="mc-count exi">Module</span></div><div class="module-card"><div class="mc-icon">📊</div><h4>HR dashboard</h4><p>The HR dashboard provides an overview of HR indicators:</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🏆</div><h4>HR objectives</h4><p>The HR objectives sub-module manages objectives specific to human resources (creation, monitoring, progress,…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">👤</div><h4>Employees</h4><p>The Employees module lists staff with their information (position, department, status)</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">🏢</div><h4>Departments</h4><p>The Departments module lists departments and their managers</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">🗂️</div><h4>Services</h4><p>The Services module completes the organizational structure by managing the services attached to…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">💼</div><h4>Positions</h4><p>The Positions module lists positions by department with the number of associated employees</p><span class="mc-count imp">Improved</span></div><div class="module-card"><div class="mc-icon">🧑‍💼</div><h4>Consultants</h4><p>The Consultants module manages the company’s external contributors and consultants, on the same…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🌴</div><h4>Leave management</h4><p>The module manages leave requests</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">📝</div><h4>Permission management</h4><p>The permissions module works like the leave module:</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">🪪</div><h4>QR badges</h4><p>The QR badges module manages QR-code identification badges for staff</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🪪</div><h4>Terminal badge</h4><p>The Terminal badge module manages clocking and badge reading at a terminal, complementing…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🚚</div><h4>Cabin coaching</h4><p>The Cabin coaching module lets you schedule in-cabin coaching (monitoring a driver in…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">⚖️</div><h4>Sanctions</h4><p>The Sanctions module manages sanctions related to staff and infringements (monitoring, statistics, filters)</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">⚖️</div><h4>Sanction documents</h4><p>The Sanction documents module manages the supporting documents associated with sanctions, with the…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">⭐</div><h4>Evaluations</h4><p>The Evaluations module manages employee performance evaluations:</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">🎓</div><h4>HR training</h4><p>The HR training module manages staff training (total, validated, expired)</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">📣</div><h4>Recruitment and needs</h4><p>The Recruitment module manages offers and applications (open offers, applications in progress, accepted,…</p><span class="mc-count exi">Existing</span></div></div></div><div id="sec-hseq" class="section"><div class="section-header fade-in"><div class="section-icon" style="background:#E8F5E9;">🛡️</div><div><h2>HSEQ management</h2><p>Health, Safety, Environment and Quality</p></div></div><div class="card fade-in"><p style="font-size:14px;color:var(--gray);line-height:1.8;">The HSEQ menu groups all health, safety, environment and quality mechanisms: dashboards and objectives, unannounced controls, events, procedures, Toolbox Meetings, regulatory watch, audits, risk management, critical task analysis, security &amp; emergency, PPE and inspections.</p></div><div class="alert success fade-in"><span class="alert-icon">✨</span><div><strong>New modules:</strong> HSEQ dashboard, HSEQ objectives, Toolbox Meetings, Regulatory watch, Audits, Risk management, Critical task analysis, Security and emergency, Controls and inspections.</div></div><div class="alert info fade-in"><span class="alert-icon">⬆️</span><div><strong>Improved modules:</strong> Personal protective equipment (PPE).</div></div><div class="module-grid fade-in"><div class="module-card"><div class="mc-icon">📊</div><h4>HSEQ dashboard</h4><p>The HSEQ dashboard centralizes the safety and compliance indicators of operations</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🏆</div><h4>HSEQ objectives</h4><p>The HSEQ objectives module manages safety, environment and quality objectives (creation, monitoring, progress,…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">✅</div><h4>Unannounced controls</h4><p>The unannounced controls module lets you track unannounced controls and their deviations</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">⚠️</div><h4>Transport events</h4><p>The transport events module lets you record and track events (incidents, anomalies) with…</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">📋</div><h4>Procedures</h4><p>The Procedures module manages the documentary repository of procedures (total, validated, draft procedures)</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">🦺</div><h4>Toolbox Meetings</h4><p>The Toolbox Meetings module manages safety talks (field safety briefings):</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">📜</div><h4>Regulatory watch</h4><p>The Regulatory watch module lets you track applicable regulatory texts and requirements and…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🔍</div><h4>Audits</h4><p>The Audits module manages the planning and monitoring of HSEQ audits (internal and…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🛑</div><h4>Risk management</h4><p>The Risk management module lets you identify, assess and monitor the risks related…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🧩</div><h4>Critical task analysis</h4><p>The Critical task analysis module lets you break down and analyze high-risk tasks…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🚨</div><h4>Security and emergency</h4><p>The Security and emergency module manages security arrangements and emergency situations (plans, instructions,…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🦺</div><h4>Personal protective equipment (PPE)</h4><p>The PPE module manages personal protective equipment (total PPE, low stock, suppliers)</p><span class="mc-count imp">Improved</span></div><div class="module-card"><div class="mc-icon">✅</div><h4>Controls and inspections</h4><p>The Controls and inspections module manages the controls and inspections program (planning, execution,…</p><span class="mc-count new">● New</span></div></div></div><div id="sec-parc" class="section"><div class="section-header fade-in"><div class="section-icon" style="background:#FFF3E0;">🚛</div><div><h2>Fleet management</h2><p>Fleet, tires, fuel and a complete CMMS</p></div></div><div class="card fade-in"><p style="font-size:14px;color:var(--gray);line-height:1.8;">The Fleet management menu steers the fleet and its maintenance: trucks, assignment history, tires, fuel, tracking, and a complete <strong>CMMS</strong> (maintenance objectives and schedules, mileage, intervention requests, diagnostics, check-ins, quotes, purchase orders, parts, interventions and immobilizations).</p></div><div class="alert success fade-in"><span class="alert-icon">✨</span><div><strong>New modules:</strong> Assignment history, Tire management, Fuel management, Dashboards (CMMS), Maintenance objectives, Maintenance schedule, Intervention request, Diagnostics, Check-in, Quotes, Purchase orders, Parts management, Interventions.</div></div><div class="alert info fade-in"><span class="alert-icon">⬆️</span><div><strong>Improved modules:</strong> CMMS, Immobilizations.</div></div><div class="module-grid fade-in"><div class="module-card"><div class="mc-icon">🚛</div><h4>Truck management</h4><p>The module manages the fleet vehicles (registered, compliant, available vehicles)</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">🔄</div><h4>Assignment history</h4><p>The Assignment history module traces all vehicle (and driver) assignments over time, for…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🛞</div><h4>Tire management</h4><p>The Tires module manages the tracking of the fleet’s tires (stock, mounting, wear,…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">⛽</div><h4>Fuel management</h4><p>The Fuel module tracks fuel consumption and expenditure, a key indicator for controlling…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">📈</div><h4>Tracking and tracking types</h4><p>The Tracking module lets you plan and manage vehicle tracking (by title, tracking…</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">🔧</div><h4>CMMS</h4><p>The CMMS groups all maintenance functions</p><span class="mc-count imp">Improved</span></div><div class="module-card"><div class="mc-icon">🔧</div><h4>Dashboards (CMMS)</h4><p>The CMMS dashboards present the maintenance indicators (immobilizations, interventions in progress, etc.)</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🏆</div><h4>Maintenance objectives</h4><p>The module manages maintenance objectives (creation, monitoring, progress, statistics)</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🔧</div><h4>Maintenance schedule</h4><p>The Maintenance schedule module defines the standard maintenance schedules and plans applied to…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">📈</div><h4>Mileage tracking</h4><p>The Mileage tracking module records and tracks vehicle mileage, the basis for triggering…</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">🛠️</div><h4>Intervention request</h4><p>The Intervention request module lets you issue and track maintenance intervention requests</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🩺</div><h4>Diagnostics</h4><p>The Diagnostics module records the diagnostics performed on vehicles</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">📥</div><h4>Check-in</h4><p>The Check-in module manages the check-in of vehicles into the workshop</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🧾</div><h4>Quotes</h4><p>The Quotes module manages maintenance and repair quotes</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🛒</div><h4>Purchase orders</h4><p>The Purchase orders module manages purchase orders related to maintenance and parts</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">⚙️</div><h4>Parts management</h4><p>The Parts management module manages the stock and tracking of spare parts</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🛠️</div><h4>Interventions</h4><p>The Interventions module manages the execution and monitoring of maintenance interventions</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🅿️</div><h4>Immobilizations</h4><p>The Immobilizations module tracks immobilized vehicles (in progress, completed) with their statistics</p><span class="mc-count imp">Improved</span></div></div></div><div id="sec-chauffeurs" class="section"><div class="section-header fade-in"><div class="section-icon" style="background:#E3F2FD;">🧑‍✈️</div><div><h2>Driver management</h2><p>Drivers, performance and training</p></div></div><div class="card fade-in"><p style="font-size:14px;color:var(--gray);line-height:1.8;">Manage drivers (licenses, performance) and their training (types, validity, expiry) with add, monitoring, export and archives.</p></div><div class="module-grid fade-in"><div class="module-card"><div class="mc-icon">🧑‍✈️</div><h4>Drivers</h4><p>The module manages drivers (total number, valid licenses, licenses near expiry)</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">🎓</div><h4>Training and training types</h4><p>The module lists driver training (total, validated, expired) and lets you manage training…</p><span class="mc-count exi">Existing</span></div></div></div><div id="sec-tournees" class="section"><div class="section-header fade-in"><div class="section-icon" style="background:#FCE4EC;">📍</div><div><h2>Route management</h2><p>Invariants, routes, rest days, camera and escorts</p></div></div><div class="card fade-in"><p style="font-size:14px;color:var(--gray);line-height:1.8;">Plan and monitor routes and their contingencies: driving invariants and sanctions, route management and breakdown, rest days, camera viewing of behavior and escorts.</p></div><div class="alert info fade-in"><span class="alert-icon">⬆️</span><div><strong>Improved modules:</strong> Route management.</div></div><div class="module-grid fade-in"><div class="module-card"><div class="mc-icon">🔹</div><h4>Transport invariants</h4><p>The Transport invariants module monitors and analyzes driving behavior</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">📍</div><h4>Route management</h4><p>The Routes module manages and visualizes the fleet’s routes (total, in progress, completion…</p><span class="mc-count imp">Improved</span></div><div class="module-card"><div class="mc-icon">🛌</div><h4>Rest-day management</h4><p>The module manages drivers’ rest days, with filters, export and archives</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">📹</div><h4>Camera viewing and behavior</h4><p>The Camera viewing module observes and analyzes driver behavior from the viewing files</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">🚓</div><h4>Escorts</h4><p>The Escorts module tracks escorts and their run sheets</p><span class="mc-count exi">Existing</span></div></div></div><div id="sec-exploitation" class="section"><div class="section-header fade-in"><div class="section-icon" style="background:#E0F2F1;">💼</div><div><h2>Operations</h2><p>Loads, distances, volumes, revenue and invoicing</p></div></div><div class="card fade-in"><p style="font-size:14px;color:var(--gray);line-height:1.8;">The Operations menu steers commercial and operational activity: loads, distances &amp; pricing, volumes, revenue and automated invoicing.</p></div><div class="alert success fade-in"><span class="alert-icon">✨</span><div><strong>New modules:</strong> Distances and pricing, Volumes, Revenue.</div></div><div class="alert info fade-in"><span class="alert-icon">⬆️</span><div><strong>Improved modules:</strong> Invoicing.</div></div><div class="module-grid fade-in"><div class="module-card"><div class="mc-icon">📦</div><h4>Loads</h4><p>The Loads module manages the tracking of loads and deliveries (total, volume transported,…</p><span class="mc-count exi">Existing</span></div><div class="module-card"><div class="mc-icon">💰</div><h4>Distances and pricing</h4><p>The Distances and pricing module manages the reference data for distances and the…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🛢️</div><h4>Volumes</h4><p>The Volumes module tracks the volumes transported, a key activity indicator</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">💵</div><h4>Revenue</h4><p>The Revenue module tracks and analyzes the revenue generated by operations</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🧾</div><h4>Invoicing</h4><p>The Invoicing module manages invoices generated automatically or manually (total, total amount, amount…</p><span class="mc-count imp">Improved</span></div></div></div><div id="sec-parametres" class="section"><div class="section-header fade-in"><div class="section-icon" style="background:#EDE7F6;">⚙️</div><div><h2>Settings &amp; Reference data</h2><p>The reference data that feeds the whole software</p></div></div><div class="card fade-in"><p style="font-size:14px;color:var(--gray);line-height:1.8;">The Settings menu centralizes the reference data feeding every module. Keeping it up to date ensures data consistency: packaging types, contract types, fleet types, products, loading products, transport channels and manufacturers.</p></div><div class="alert success fade-in"><span class="alert-icon">✨</span><div><strong>New modules:</strong> Packaging types, Contract types, Fleet types, Products, Loading products, Transport channels, Manufacturers.</div></div><div class="module-grid fade-in"><div class="module-card"><div class="mc-icon">📦</div><h4>Packaging types</h4><p>Reference data for the packaging types of the transported goods</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">📄</div><h4>Contract types</h4><p>Reference data for the contract types used in the software (driver contracts, transport,…</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🚛</div><h4>Fleet types</h4><p>Reference data for the company’s fleet/vehicle types</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🧴</div><h4>Products</h4><p>Reference data for the products managed by the company</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">📦</div><h4>Loading products</h4><p>Reference data for the products likely to be loaded and transported</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🛣️</div><h4>Transport channels</h4><p>Reference data for the transport channels (modes/circuits) used</p><span class="mc-count new">● New</span></div><div class="module-card"><div class="mc-icon">🏭</div><h4>Manufacturers</h4><p>Reference data for manufacturers (vehicles, parts, equipment)</p><span class="mc-count new">● New</span></div></div></div><div id="sec-ged" class="section">
+<div class="section-header fade-in"><div class="section-icon" style="background:#FCE4EC;">🗄️</div><div><h2>EDM — Electronic Document Management</h2><p>Centralize, trace and find all your documents</p></div></div>
+<div class="alert info fade-in"><span class="alert-icon">📂</span><div>The <strong>EDM</strong> links all of KILOJI’s document-producing modules (contracts, templates, letters, procedures, sanction documents, invoices, exports) within a single <strong>document workspace</strong> — organized, searchable and traceable.</div></div>
+<div class="card fade-in"><p style="font-size:14px;color:var(--gray);line-height:1.8;">Electronic Document Management turns scattered files into a structured library. Each document has a <strong>document record</strong> (reference, type, status, version, date, domain, location), can be <strong>searched</strong>, <strong>filtered</strong>, <strong>versioned</strong>, <strong>exported</strong> (PDF/Excel) and <strong>archived</strong> then restored, respecting rights and confidentiality.</p></div>
+<h3 class="sub">EDM capabilities</h3>
+<div class="feature-grid fade-in">
+  <div class="feature-card"><div class="fc-icon" style="background:#E3F2FD;">🗂️</div><div class="fc-body"><h4>Tree library</h4><p>Folders by domain and module, breadcrumb navigation.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#E0F2F1;">🏷️</div><div class="fc-body"><h4>Metadata &amp; references</h4><p>Unique reference, type, status, version, date, domain, location.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#FFF3E0;">🕓</div><div class="fc-body"><h4>Version control</h4><p>Revision history (v1.0 → v2.0) and update tracking.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#FCE4EC;">🔎</div><div class="fc-body"><h4>Search &amp; filters</h4><p>Full-text search and filters by type, status and domain.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#E8F5E9;">🗃️</div><div class="fc-body"><h4>Archives &amp; restore</h4><p>Archive obsolete documents and restore them in one click.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#EDE7F6;">⬇️</div><div class="fc-body"><h4>Import / Export PDF·Excel</h4><p>Upload local files and export documents and lists.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#E3F2FD;">🔐</div><div class="fc-body"><h4>Rights &amp; confidentiality</h4><p>Access based on each user’s and carrier’s permissions.</p></div></div>
+  <div class="feature-card"><div class="fc-icon" style="background:#FFF3E0;">⭐</div><div class="fc-body"><h4>Favorites &amp; recent</h4><p>Quickly find documents you viewed or starred.</p></div></div>
+</div>
+<h3 class="sub">Document lifecycle</h3>
+<div class="flow fade-in">
+  <div class="flow-node">📝 Create / Import</div><span class="flow-arrow">→</span>
+  <div class="flow-node">✅ Validate</div><span class="flow-arrow">→</span>
+  <div class="flow-node">📢 Distribute</div><span class="flow-arrow">→</span>
+  <div class="flow-node">👁️ Consult</div><span class="flow-arrow">→</span>
+  <div class="flow-node">🗃️ Archive</div>
+</div>
+<h3 class="sub">Using the EDM — step by step</h3>
+<div class="steps fade-in">
+  <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Upload or draft a document</strong><p>Import a file from local storage or draft it in the built-in editor (contract, template, letter, procedure…).</p></div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Fill in the document record <span class="step-tag req">Recommended</span></strong><p>Set the type, domain, status and version. A <strong>unique reference</strong> is assigned automatically.</p></div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Search &amp; filter</strong><p>Use full-text search or filters (type, status, domain) to instantly find a document.</p></div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Consult &amp; export</strong><p>Open the document, review its metadata and export it to <strong>PDF / Excel</strong> if needed.</p></div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Archive &amp; restore</strong><p>Archive obsolete documents; they remain viewable and <strong>restorable</strong> to the main library.</p></div></div>
+</div>
+<h3 class="sub">Documents managed by the EDM</h3>
+<div class="module-grid fade-in">
+  <div class="module-card"><div class="mc-icon">📄</div><h4>Driver contracts</h4><p>Contracts &amp; amendments</p><span class="mc-count exi">Import / Drafting</span></div>
+  <div class="module-card"><div class="mc-icon">📋</div><h4>Contract templates</h4><p>Template library</p><span class="mc-count exi">Reusable</span></div>
+  <div class="module-card"><div class="mc-icon">✉️</div><h4>Letter templates</h4><p>Standard letters</p><span class="mc-count new">● New</span></div>
+  <div class="module-card"><div class="mc-icon">📋</div><h4>Procedures</h4><p>Documentary repository</p><span class="mc-count exi">Validated / Draft</span></div>
+  <div class="module-card"><div class="mc-icon">⚖️</div><h4>Sanction documents</h4><p>Supporting documents</p><span class="mc-count new">● New</span></div>
+  <div class="module-card"><div class="mc-icon">🧾</div><h4>Invoices</h4><p>Invoices &amp; due dates</p><span class="mc-count imp">Improved</span></div>
+  <div class="module-card"><div class="mc-icon">📊</div><h4>Reports &amp; exports</h4><p>PDF / Excel exports</p><span class="mc-count exi">All modules</span></div>
+  <div class="module-card"><div class="mc-icon">🎯</div><h4>Action plans</h4><p>Guidelines &amp; objectives</p><span class="mc-count exi">Export PDF/Excel</span></div>
+</div>
+<table class="data-table fade-in"><thead><tr><th>Metadata</th><th>Description</th></tr></thead><tbody>
+<tr><td>🏷️ Reference</td><td>Unique document identifier (e.g. UM-KLJ-045)</td></tr>
+<tr><td>📁 Type</td><td>Procedure, Module, Contract, Letter, Reference data, Invoice…</td></tr>
+<tr><td>🚦 Status</td><td>New · Revised · Approved · Archived</td></tr>
+<tr><td>🕓 Version</td><td>Version number and revision history</td></tr>
+<tr><td>📅 Updated</td><td>Date of last modification</td></tr>
+<tr><td>📂 Location</td><td>Domain and folder in the library</td></tr>
+</tbody></table>
+<div class="alert success fade-in"><span class="alert-icon">🔗</span><div>The EDM relies on KILOJI’s standard actions (<strong>Add, Import, Filter, Export, Archives</strong>) already present in every module: any document produced in the software is automatically referenced and traceable.</div></div>
+</div><div id="sec-glossaire" class="section"><div class="section-header fade-in"><div class="section-icon" style="background:#EDE7F6;">📚</div><div><h2>Glossary</h2><p>Key KILOJI terms</p></div></div><div class="glossary-item fade-in"><div class="glossary-term">EDM</div><div class="glossary-def">Electronic Document Management: a centralized library of the software’s documents.</div></div><div class="glossary-item fade-in"><div class="glossary-term">CMMS</div><div class="glossary-def">Computerized Maintenance Management System: planning and tracking of fleet maintenance.</div></div><div class="glossary-item fade-in"><div class="glossary-term">HSEQ</div><div class="glossary-def">Health, Safety, Environment and Quality: compliance and prevention mechanisms.</div></div><div class="glossary-item fade-in"><div class="glossary-term">2FA</div><div class="glossary-def">Two-factor authentication via an app (Google Authenticator) to secure login.</div></div><div class="glossary-item fade-in"><div class="glossary-term">PPE</div><div class="glossary-def">Personal Protective Equipment: safety gear tracked in stock and allocation.</div></div><div class="glossary-item fade-in"><div class="glossary-term">Driving invariant</div><div class="glossary-def">A monitored driving rule (speed, duration…) whose breach can generate a sanction.</div></div><div class="glossary-item fade-in"><div class="glossary-term">Route</div><div class="glossary-def">A planned vehicle trip, with loading point, distances, assignments and status.</div></div><div class="glossary-item fade-in"><div class="glossary-term">Reference data</div><div class="glossary-def">Configuration data (products, contract types, fleets, channels, manufacturers) feeding the modules.</div></div><div class="glossary-item fade-in"><div class="glossary-term">Amendment</div><div class="glossary-def">A contractual change attached to an existing driver contract.</div></div><div class="glossary-item fade-in"><div class="glossary-term">Toolbox Meeting</div><div class="glossary-def">A field safety talk: a short briefing documented in the HSEQ module.</div></div></div>
+  </div>
+</main>
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+<script>
+// ── Navigation ─────────────────────────────────────────────
+const labels = {"accueil": "Home", "nouveautes": "What’s new in 2.0", "principes": "Fundamentals", "connexion": "Login & Deployment", "utilisateurs": "User management", "management": "Management & Resources", "hseq": "HSEQ management", "parc": "Fleet management", "chauffeurs": "Driver management", "tournees": "Route management", "exploitation": "Operations", "parametres": "Settings & Reference", "ged": "EDM — Document management", "glossaire": "Glossary"};
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const sec = document.getElementById('sec-' + id);
+  if (sec) { sec.classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'"))
+      n.classList.add('active');
+  });
+  document.getElementById('breadcrumbLabel').textContent = labels[id] || id;
+  // Trigger animations
+  setTimeout(() => {
+    sec.querySelectorAll('.fade-in').forEach((el, i) => {
+      setTimeout(() => el.classList.add('visible'), i * 80);
+    });
+  }, 50);
+}
+
+// Initial animations
+setTimeout(() => {
+  document.querySelectorAll('#sec-accueil .fade-in').forEach((el, i) => {
+    setTimeout(() => el.classList.add('visible'), i * 80);
+  });
+}, 100);
+
+// ── Progress bar ────────────────────────────────────────────
+const main = document.querySelector('.main');
+const bar  = document.getElementById('progressBar');
+const btn  = document.getElementById('backTop');
+main.addEventListener('scroll', () => {
+  const pct = main.scrollTop / (main.scrollHeight - main.clientHeight);
+  bar.style.transform = `scaleX(${pct})`;
+  btn.classList.toggle('visible', main.scrollTop > 300);
+});
+window.addEventListener('scroll', () => {
+  const pct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  bar.style.transform = `scaleX(${pct})`;
+  btn.classList.toggle('visible', window.scrollY > 300);
+});
+</script>
+</body>
+</html>
